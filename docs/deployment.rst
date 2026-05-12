@@ -87,17 +87,23 @@ See ``k8s/secret.example.yaml`` for the structure:
 3. Apply the Deployment
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Apply the manifests natively:
+Apply the **base** manifests for a generic cluster:
 
 .. code-block:: bash
 
-   kubectl apply -f k8s/deployment.yaml
+   kubectl apply -k k8s/base
 
-Or use a GitOps controller like **ArgoCD** to sync the ``k8s/`` directory. If your GHCR image is private, ensure you also create an ``imagePullSecret`` and reference it in the deployment manifest.
+Or use a GitOps controller like **ArgoCD** to sync the ``k8s/base`` directory.
 
-.. literalinclude:: ../k8s/deployment.yaml
-   :language: yaml
-   :caption: k8s/deployment.yaml
+Specialised Overlays
+^^^^^^^^^^^^^^^^^^^^
+
+We include a production overlay in ``k8s/overlays/production/`` that includes patches for:
+- Private GHCR image pull secrets.
+- Tailscale / MagicDNS compatibility (custom DNS config).
+- Architecture selection (nodeSelector).
+
+You can use this as a template for your own environment-specific tweaks.
 
 4. Verify
 ^^^^^^^^^

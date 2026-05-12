@@ -194,12 +194,14 @@ kubectl -n arcascian-tools create secret docker-registry ghcr-secret \
 ```
 
 ### 3. Deploy
-Apply the deployment manifests natively or via ArgoCD:
+Apply the **base** manifests for a generic cluster:
 ```bash
-kubectl apply -f k8s/deployment.yaml
+kubectl apply -k k8s/base
 ```
 
-> **Note:** The bot only makes outbound connections, so no Service or Ingress is needed. The `deployment.yaml` restricts the pod to `amd64` nodes to prevent `exec format error` on ARM architectures.
+If you are using a GitOps controller like **ArgoCD**, point it to the `k8s/base` directory (or create your own overlay in `k8s/overlays/`).
+
+> **Pro Tip:** We include a specialized overlay in `k8s/overlays/production` that handles private image pull secrets and Tailscale DNS compatibility. You can use it as a template for your own environment.
 
 ---
 
