@@ -28,7 +28,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the bot package (includes code and templates).
 COPY bugbot/ bugbot/
-COPY templates/ bugbot/templates/
 
 # Run the bot as a module.
 CMD ["python", "-m", "bugbot.main"]
