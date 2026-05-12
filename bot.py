@@ -151,6 +151,41 @@ def load_config() -> BotConfig:
 config: BotConfig = load_config()
 """Module-level :class:`BotConfig` instance, populated at import time."""
 
+# ---------------------------------------------------------------------------
+# Stats and Logging Interception
+# ---------------------------------------------------------------------------
+
+from collections import deque
+
+
+@dataclass
+class BotStats:
+    """Track runtime statistics for the dashboard."""
+    start_time: datetime = datetime.now(timezone.utc)
+    bugs_reported: int = 0
+    attachments_synced: int = 0
+    threads_created: int = 0
+    last_bug_at: datetime | None = None
+
+
+stats = BotStats()
+
+
+class LogCaptureHandler(logging.Handler):
+    """Custom logging handler to store the last 100 log lines in memory."""
+    def __init__(self, capacity: int = 100) -> None:
+        super().__init__()
+        self.logs: deque[str] = deque(maxlen=capacity)
+
+    def emit(self, record: logging.LogRecord) -> None:
+        msg: str = self.format(record)
+        self.logs.append(msg)
+
+
+log_capture = LogCaptureHandler()
+log_capture.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+logging.getLogger().addHandler(log_capture)
+
 logging.basicConfig(
     level=getattr(logging, config.log_level, logging.INFO),
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
@@ -400,6 +435,9 @@ async def bug_command(
             card_url: str | None = card.get("shortUrl") or card.get("url")
             card_id: str | None = card.get("id")
 
+            stats.bugs_reported += 1
+            stats.last_bug_at = datetime.now(timezone.utc)
+
             log.info(
                 "Card created for %s (%s): %s",
                 ctx.author,
@@ -414,6 +452,7 @@ async def bug_command(
                         await add_attachment_to_trello_card(
                             session, card_id, attachment.url
                         )
+                        stats.attachments_synced += 1
                         log.info("Attached file to Trello: %s", attachment.filename)
                     except Exception as att_exc:
                         log.warning(
@@ -436,6 +475,7 @@ async def bug_command(
                 await ctx.message.create_thread(
                     name=thread_name, auto_archive_duration=1440
                 )
+                stats.threads_created += 1
                 log.info("Created Discord thread for bug report.")
             except Exception as thread_exc:
                 log.warning("Failed to create Discord thread: %s", thread_exc)
@@ -457,7 +497,11 @@ async def bug_command(
 # ---------------------------------------------------------------------------
 
 import re
+import asyncio
+import aiohttp_jinja2
+import jinja2
 from aiohttp import web
+from datetime import datetime, timezone, timedelta
 
 #: Regex to extract the message link from a Trello card description.
 MESSAGE_LINK_RE: re.Pattern[str] = re.compile(
@@ -539,10 +583,104 @@ async def handle_trello_webhook(request: web.Request) -> web.Response:
         return web.Response(status=500)
 
 
+# ---------------------------------------------------------------------------
+# Dashboard Routes
+# ---------------------------------------------------------------------------
+
+@aiohttp_jinja2.template("index.html")
+async def handle_dashboard(request: web.Request) -> dict[str, Any]:
+    """Render the main dashboard page."""
+    # Fetch recent bugs directly from Trello for the dashboard.
+    recent_bugs: list[dict[str, Any]] = []
+    try:
+        async with aiohttp.ClientSession() as session:
+            params: dict[str, str] = {
+                "key": config.trello_api_key,
+                "token": config.trello_token,
+                "limit": "10",
+            }
+            async with session.get(
+                f"https://api.trello.com/1/lists/{config.trello_list_id}/cards",
+                params=params
+            ) as resp:
+                if resp.status == 200:
+                    recent_bugs = await resp.json()
+    except Exception as e:
+        log.warning("Dashboard failed to fetch Trello cards: %s", e)
+
+    uptime: timedelta = datetime.now(timezone.utc) - stats.start_time
+    # Format uptime as H:M:S
+    hours, remainder = divmod(int(uptime.total_seconds()), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    uptime_str: str = f"{hours:02}:{minutes:02}:{seconds:02}"
+
+    return {
+        "stats": stats,
+        "uptime": uptime_str,
+        "recent_bugs": recent_bugs,
+        "version": "v1.1.0",
+    }
+
+
+async def handle_stats_api(request: web.Request) -> web.Response:
+    """Return bot statistics as JSON."""
+    uptime: timedelta = datetime.now(timezone.utc) - stats.start_time
+    return web.json_response({
+        "uptime": str(uptime),
+        "bugs_reported": stats.bugs_reported,
+        "attachments_synced": stats.attachments_synced,
+        "threads_created": stats.threads_created,
+        "last_bug_at": stats.last_bug_at.isoformat() if stats.last_bug_at else None,
+    })
+
+
+async def handle_log_stream(request: web.Request) -> web.Response:
+    """Stream live logs to the browser using Server-Sent Events (SSE)."""
+    response = web.StreamResponse(
+        status=200,
+        reason="OK",
+        headers={
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
+    await response.prepare(request)
+
+    # Send initial logs.
+    for line in log_capture.logs:
+        await response.write(f"data: {line}\n\n".encode("utf-8"))
+
+    # Keep the connection open and wait for new logs.
+    # Simple implementation: poll log_capture.logs for changes.
+    last_log_count: int = len(log_capture.logs)
+    while True:
+        await asyncio.sleep(1)
+        current_logs = list(log_capture.logs)
+        if len(current_logs) > last_log_count:
+            # Send only the new lines.
+            new_lines = current_logs[last_log_count:]
+            for line in new_lines:
+                await response.write(f"data: {line}\n\n".encode("utf-8"))
+            last_log_count = len(current_logs)
+
+    return response
+
+
 async def run_webhook_server() -> None:
-    """Run the aiohttp web server for incoming webhooks."""
+    """Run the aiohttp web server for incoming webhooks and dashboard."""
     app: web.Application = web.Application()
+    
+    # Setup Jinja2 templates.
+    aiohttp_jinja2.setup(
+        app, loader=jinja2.FileSystemLoader("templates")
+    )
+
+    app.router.add_get("/", handle_dashboard)
+    app.router.add_get("/api/stats", handle_stats_api)
+    app.router.add_get("/api/logs", handle_log_stream)
     app.router.add_route("*", "/trello-webhook", handle_trello_webhook)
+    
     runner: web.AppRunner = web.AppRunner(app)
     await runner.setup()
     site: web.TCPSite = web.TCPSite(
@@ -550,7 +688,7 @@ async def run_webhook_server() -> None:
     )
     await site.start()
     log.info(
-        "Webhook server listening on %s:%s",
+        "Webhook and Dashboard server listening on %s:%s",
         config.webhook_host,
         config.webhook_port
     )

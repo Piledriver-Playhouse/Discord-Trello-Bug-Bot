@@ -18,3 +18,7 @@ aiohttp>=3.9,<4
 # Loads .env files into os.environ for local development convenience.
 # In Docker/k8s, env vars are injected by the runtime, so this is a no-op.
 python-dotenv>=1.0,<2
+
+# Web templating engine for the dashboard.
+jinja2>=3.1,<4
+aiohttp_jinja2>=1.5,<2

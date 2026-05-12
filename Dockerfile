@@ -26,8 +26,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the bot source code.
+# Copy the bot source code and templates.
 COPY bot.py .
+COPY templates/ templates/
 
 # Run the bot. No shell form — exec form ensures signals are forwarded
 # correctly so the container shuts down cleanly.
