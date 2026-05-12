@@ -17,7 +17,7 @@ No database required — just an outbound connection to Discord and Trello, and 
 
 ## Dashboard Preview
 
-![Dashboard Preview](media/dashboard_preview.png)
+![Dashboard Preview](media/dashboard-preview.png)
 
 ---
 
