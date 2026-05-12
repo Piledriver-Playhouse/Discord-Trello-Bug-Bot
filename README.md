@@ -17,7 +17,7 @@ No database required — just an outbound connection to Discord and Trello, and 
 
 ## Dashboard Preview
 
-![Dashboard Preview](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/blob/main/media/pp-logo.png?raw=true)
+![Dashboard Preview](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/blob/main/media/dashboard-preview.png?raw=true)
 
 ---
 
