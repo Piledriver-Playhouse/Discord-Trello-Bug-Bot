@@ -24,6 +24,9 @@ _MOCK_ENV = {
     "TRELLO_API_KEY": "DOCS_BUILD_PLACEHOLDER",
     "TRELLO_TOKEN": "DOCS_BUILD_PLACEHOLDER",
     "TRELLO_LIST_ID": "DOCS_BUILD_PLACEHOLDER",
+    "TRELLO_DONE_LIST_ID": "DOCS_BUILD_PLACEHOLDER",
+    "WEBHOOK_HOST": "0.0.0.0",
+    "WEBHOOK_PORT": "8080",
 }
 for key, value in _MOCK_ENV.items():
     os.environ.setdefault(key, value)
@@ -35,7 +38,7 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "Discord Trello Bug Bot"
 copyright = "2026, Arcascian"
 author = "Arcascian"
-release = "1.0.0"
+release = "1.1.1"
 
 # -- General configuration ---------------------------------------------------
 

@@ -55,11 +55,11 @@ All manifests live in the ``k8s/`` directory.
 
 .. code-block:: bash
 
-   kubectl apply -f k8s/namespace.yaml
+   kubectl apply -f k8s/base/namespace.yaml
 
-.. literalinclude:: ../k8s/namespace.yaml
+.. literalinclude:: ../k8s/base/namespace.yaml
    :language: yaml
-   :caption: k8s/namespace.yaml
+   :caption: k8s/base/namespace.yaml
 
 2. Create the Secret
 ^^^^^^^^^^^^^^^^^^^^^
