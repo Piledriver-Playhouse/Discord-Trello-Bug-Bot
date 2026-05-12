@@ -175,7 +175,11 @@ async def start_web_server(bot: commands.Bot, config: BotConfig) -> web.TCPSite:
     
     import os
     template_path = os.path.join(os.path.dirname(__file__), "templates")
+    static_path = os.path.join(os.path.dirname(__file__), "static")
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(template_path))
+
+    # Serve static assets (logo, favicon)
+    app.router.add_static("/static/", path=static_path, name="static")
 
     app.router.add_get("/", handle_dashboard)
     app.router.add_get("/api/stats", handle_stats_api)
