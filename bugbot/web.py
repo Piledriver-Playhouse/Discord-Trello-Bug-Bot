@@ -32,6 +32,14 @@ MESSAGE_LINK_RE: re.Pattern[str] = re.compile(
 )
 
 
+def format_uptime(delta: timedelta) -> str:
+    """Format a timedelta into a clean HH:MM:SS string."""
+    seconds = int(delta.total_seconds())
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
 async def handle_trello_webhook(request: web.Request) -> web.Response:
     """Process incoming Trello webhooks."""
     if request.method == "HEAD":
@@ -114,10 +122,7 @@ async def handle_dashboard(request: web.Request) -> dict[str, Any]:
     except Exception as e:
         log.warning("Dashboard failed to fetch Trello cards: %s", e)
 
-    uptime: timedelta = datetime.now(timezone.utc) - stats.start_time
-    hours, remainder = divmod(int(uptime.total_seconds()), 3600)
-    minutes, seconds = divmod(remainder, 60)
-    uptime_str: str = f"{hours:02}:{minutes:02}:{seconds:02}"
+    uptime_str: str = format_uptime(datetime.now(timezone.utc) - stats.start_time)
 
     return {
         "stats": stats,
@@ -129,9 +134,9 @@ async def handle_dashboard(request: web.Request) -> dict[str, Any]:
 
 async def handle_stats_api(request: web.Request) -> web.Response:
     """Return bot statistics as JSON."""
-    uptime: timedelta = datetime.now(timezone.utc) - stats.start_time
+    uptime_str: str = format_uptime(datetime.now(timezone.utc) - stats.start_time)
     return web.json_response({
-        "uptime": str(uptime),
+        "uptime": uptime_str,
         "bugs_reported": stats.bugs_reported,
         "attachments_synced": stats.attachments_synced,
         "threads_created": stats.threads_created,
