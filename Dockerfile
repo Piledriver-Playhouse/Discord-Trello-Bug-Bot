@@ -16,6 +16,7 @@
 # =============================================================================
 
 FROM python:3.12-slim
+LABEL org.opencontainers.image.source="https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot"
 
 # Set the working directory inside the container.
 WORKDIR /app
