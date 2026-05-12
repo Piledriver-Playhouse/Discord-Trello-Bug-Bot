@@ -396,38 +396,38 @@ async def bug_command(
                 session, card_title, card_desc
             )
 
-        # Prefer the short URL; fall back to the full URL.
-        card_url: str | None = card.get("shortUrl") or card.get("url")
-        card_id: str | None = card.get("id")
+            # Prefer the short URL; fall back to the full URL.
+            card_url: str | None = card.get("shortUrl") or card.get("url")
+            card_id: str | None = card.get("id")
 
-        log.info(
-            "Card created for %s (%s): %s",
-            ctx.author,
-            ctx.author.id,
-            card_url,
-        )
+            log.info(
+                "Card created for %s (%s): %s",
+                ctx.author,
+                ctx.author.id,
+                card_url,
+            )
 
-        # ── Handle Attachments ─────────────────────────────────────────
-        if config.enable_attachments and ctx.message.attachments and card_id:
-            for attachment in ctx.message.attachments:
-                try:
-                    await add_attachment_to_trello_card(
-                        session, card_id, attachment.url
-                    )
-                    log.info("Attached file to Trello: %s", attachment.filename)
-                except Exception as att_exc:
-                    log.warning(
-                        "Failed to upload attachment %s: %s",
-                        attachment.filename,
-                        att_exc,
-                    )
+            # ── Handle Attachments ─────────────────────────────────────────
+            if config.enable_attachments and ctx.message.attachments and card_id:
+                for attachment in ctx.message.attachments:
+                    try:
+                        await add_attachment_to_trello_card(
+                            session, card_id, attachment.url
+                        )
+                        log.info("Attached file to Trello: %s", attachment.filename)
+                    except Exception as att_exc:
+                        log.warning(
+                            "Failed to upload attachment %s: %s",
+                            attachment.filename,
+                            att_exc,
+                        )
 
-        # Success feedback in Discord.
-        await ctx.message.add_reaction("✅")
-        await ctx.reply(f"Bug report submitted! Trello card: {card_url}")
+            # Success feedback in Discord.
+            await ctx.message.add_reaction("✅")
+            await ctx.reply(f"Bug report submitted! Trello card: {card_url}")
 
-        # ── Handle Thread Creation ─────────────────────────────────────
-        if config.enable_threads:
+            # ── Handle Thread Creation ─────────────────────────────────────
+            if config.enable_threads:
             try:
                 # Thread name should be somewhat descriptive.
                 thread_name: str = (
