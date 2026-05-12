@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Docker Pulls](https://img.shields.io/badge/docker-ghcr.io-blue.svg)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
 
-A lightweight Discord bot that turns `!bug` messages into Trello cards — built for private game repositories by **Piledriver Playhouse** where public GitHub Issues aren't desired.
+A lightweight Discord bot that turns `!bug` messages into Trello cards — built for private game repositories by [**Piledriver Playhouse**](www.piledriver-playhouse.com) where public GitHub Issues aren't desired.
 
 ## What It Does
 
