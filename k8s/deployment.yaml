@@ -44,7 +44,7 @@ spec:
 
           # ── Container image ───────────────────────────────────────────
           # Replace YOUR_ORG with your GitHub organisation or username.
-          image: ghcr.io/YOUR_ORG/arcascian-bugbot:latest
+          image: ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest
           imagePullPolicy: Always
 
           # ── Environment variables ─────────────────────────────────────

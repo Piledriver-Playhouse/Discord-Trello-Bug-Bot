@@ -1,11 +1,15 @@
 # Discord Trello Bug Bot
 
-A lightweight Discord bot that turns `!bug` messages into Trello cards — built for private game repos where public GitHub Issues aren't desired.
+[![Documentation](https://img.shields.io/badge/docs-Sphinx-blue.svg)](https://Piledriver-Playhouse.github.io/Discord-Trello-Bug-Bot/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Docker Pulls](https://img.shields.io/badge/docker-ghcr.io-blue.svg)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
+
+A lightweight Discord bot that turns `!bug` messages into Trello cards — built for private game repositories by **Piledriver Playhouse** where public GitHub Issues aren't desired.
 
 ## What It Does
 
 1. A user types `!bug <report>` in a designated Discord channel.
-2. The bot creates a Trello card in a configured list (e.g. **Bugs**) with the full report, reporter info, and a link back to the Discord message.
+2. The bot creates a Trello card in a configured list (e.g., **Bugs**) with the full report, reporter info, and a link back to the Discord message.
 3. The bot reacts with ✅ and replies with the Trello card URL.
 
 No database, no web server, no inbound webhooks — just an outbound connection to Discord and Trello.
@@ -156,34 +160,46 @@ The Compose file reads from `.env` in the project root.
 echo $GHCR_TOKEN | docker login ghcr.io -u YOUR_USERNAME --password-stdin
 
 # Build and push
-docker build -t ghcr.io/YOUR_ORG/arcascian-bugbot:latest .
-docker push ghcr.io/YOUR_ORG/arcascian-bugbot:latest
+docker build -t ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest .
+docker push ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest
 ```
 
 ---
 
-## Deploy to k3s / Kubernetes
+## Deploy to Kubernetes & GitOps
+
+The bot is designed to run seamlessly in a Kubernetes cluster (e.g., k3s) and plays well with GitOps tools like **ArgoCD**.
+
+### 1. Secrets Management
+ArgoCD and GitOps repositories should not store plain text secrets. You must create the secret manually (or via SealedSecrets) on your cluster:
 
 ```bash
-# 1. Create the namespace
-kubectl apply -f k8s/namespace.yaml
-
-# 2. Create the secret with your real values
+kubectl create namespace arcascian-tools
 kubectl -n arcascian-tools create secret generic arcascian-bugbot-secrets \
   --from-literal=DISCORD_TOKEN='...' \
   --from-literal=BUG_CHANNEL_ID='...' \
   --from-literal=TRELLO_API_KEY='...' \
   --from-literal=TRELLO_TOKEN='...' \
   --from-literal=TRELLO_LIST_ID='...'
-
-# 3. Deploy
-kubectl apply -f k8s/deployment.yaml
-
-# 4. Check logs
-kubectl -n arcascian-tools logs deploy/arcascian-bugbot -f
 ```
 
-> **Note:** The bot only makes outbound connections, so no Service or Ingress is needed.
+### 2. Private Image Pull Secret (Optional)
+If your GHCR package is private, create a Docker registry secret and update `deployment.yaml` with an `imagePullSecrets` configuration:
+```bash
+kubectl -n arcascian-tools create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=YOUR_USERNAME \
+  --docker-password='...' \
+  --docker-email=info@piledriver-playhouse.com
+```
+
+### 3. Deploy
+Apply the deployment manifests natively or via ArgoCD:
+```bash
+kubectl apply -f k8s/deployment.yaml
+```
+
+> **Note:** The bot only makes outbound connections, so no Service or Ingress is needed. The `deployment.yaml` restricts the pod to `amd64` nodes to prevent `exec format error` on ARM architectures.
 
 ---
 
@@ -255,9 +271,9 @@ Pin this in your bug-report channel:
 
 ## Documentation
 
-Full Sphinx-generated documentation is available on **GitHub Pages** and
-is automatically deployed on every push to `main` via the
-`.github/workflows/docs.yml` action.
+Full Sphinx-generated documentation is available at [https://Piledriver-Playhouse.github.io/Discord-Trello-Bug-Bot/](https://Piledriver-Playhouse.github.io/Discord-Trello-Bug-Bot/).
+
+The documentation is automatically deployed on every push to `main` via the `.github/workflows/docs.yml` GitHub Action.
 
 ### Build Docs Locally
 
@@ -273,13 +289,10 @@ open docs/_build/html/index.html   # macOS
 xdg-open docs/_build/html/index.html  # Linux
 ```
 
-### GitHub Pages Setup
-
-1. In the repository **Settings → Pages**, set **Source** to **GitHub Actions**.
-2. Push to `main` — the docs workflow will build and deploy automatically.
-
 ---
 
 ## License
 
-This project is provided as-is for internal team use.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+Copyright (c) 2026 Piledriver Playhouse.

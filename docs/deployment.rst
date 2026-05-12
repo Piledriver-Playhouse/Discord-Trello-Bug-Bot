@@ -42,8 +42,8 @@ Publishing to GitHub Container Registry
    echo $GHCR_TOKEN | docker login ghcr.io -u YOUR_USERNAME --password-stdin
 
    # Build and push
-   docker build -t ghcr.io/YOUR_ORG/arcascian-bugbot:latest .
-   docker push ghcr.io/YOUR_ORG/arcascian-bugbot:latest
+   docker build -t ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest .
+   docker push ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest
 
 Kubernetes / k3s
 -----------------
@@ -87,9 +87,13 @@ See ``k8s/secret.example.yaml`` for the structure:
 3. Apply the Deployment
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+Apply the manifests natively:
+
 .. code-block:: bash
 
    kubectl apply -f k8s/deployment.yaml
+
+Or use a GitOps controller like **ArgoCD** to sync the ``k8s/`` directory. If your GHCR image is private, ensure you also create an ``imagePullSecret`` and reference it in the deployment manifest.
 
 .. literalinclude:: ../k8s/deployment.yaml
    :language: yaml

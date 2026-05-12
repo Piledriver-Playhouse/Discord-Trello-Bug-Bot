@@ -31,8 +31,8 @@ Quick Start
 .. code-block:: bash
 
    # Clone & set up
-   git clone https://github.com/YOUR_ORG/arcascian-bugbot.git
-   cd arcascian-bugbot
+   git clone https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot.git
+   cd Discord-Trello-Bug-Bot
    python -m venv .venv && source .venv/bin/activate
    pip install -r requirements.txt
 
