@@ -1,0 +1,11 @@
+# Sphinx documentation build dependencies.
+# Install with: pip install -r docs/requirements.txt
+sphinx>=7.2,<9
+furo>=2024.1,<2027
+myst-parser>=3.0,<5
+sphinx-autodoc-typehints>=2.0,<3
+
+# Runtime deps needed for autodoc to import bot.py
+discord.py>=2.3,<3
+aiohttp>=3.9,<4
+python-dotenv>=1.0,<2

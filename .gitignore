@@ -1,0 +1,47 @@
+# =============================================================================
+# .gitignore — Discord Trello Bug Bot
+# =============================================================================
+
+# ── Secrets & environment files ─────────────────────────────────────────────
+# NEVER commit files containing real tokens or credentials.
+.env
+.env.local
+.env.*.local
+
+# ── Python bytecode & caches ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# ── Virtual environments ────────────────────────────────────────────────────
+.venv/
+venv/
+ENV/
+
+# ── Distribution / packaging ────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+
+# ── Sphinx documentation build output ───────────────────────────────────────
+docs/_build/
+
+# ── IDE & editor files ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── pytest / coverage ───────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── mypy ────────────────────────────────────────────────────────────────────
+.mypy_cache/

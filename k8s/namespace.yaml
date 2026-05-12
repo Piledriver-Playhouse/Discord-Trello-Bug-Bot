@@ -1,0 +1,16 @@
+# =============================================================================
+# k8s/namespace.yaml — Kubernetes Namespace
+# =============================================================================
+#
+# Creates the "arcascian-tools" namespace used by all Arcascian tooling
+# workloads. Apply once per cluster:
+#
+#   kubectl apply -f k8s/namespace.yaml
+# =============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  # All Arcascian tool deployments (bug bot, etc.) run in this namespace
+  # to keep them isolated from other cluster workloads.
+  name: arcascian-tools

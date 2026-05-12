@@ -1,2 +1,59 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# =============================================================================
+# .gitattributes — Enforce consistent line endings and diff behaviour
+# =============================================================================
+#
+# This file tells Git how to handle line endings and how to display diffs
+# for different file types. It is especially important in mixed OS teams
+# (Windows / macOS / Linux).
+
+# -- Default: auto-detect and normalise to LF on commit ---------------------
+* text=auto eol=lf
+
+# -- Python source -----------------------------------------------------------
+*.py text diff=python
+
+# -- Markdown and reStructuredText -------------------------------------------
+*.md text diff=markdown
+*.rst text
+
+# -- YAML / JSON / TOML config files ----------------------------------------
+*.yml text
+*.yaml text
+*.json text
+*.toml text
+
+# -- Docker ------------------------------------------------------------------
+Dockerfile text
+docker-compose.yml text
+
+# -- Shell scripts -----------------------------------------------------------
+*.sh text eol=lf
+
+# -- Environment / dotfiles --------------------------------------------------
+.env.example text
+.gitignore text
+.gitattributes text
+
+# -- Requirements files ------------------------------------------------------
+requirements.txt text
+
+# -- Kubernetes manifests (already covered by *.yaml above) ------------------
+
+# -- Binary files that should never be diffed --------------------------------
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# -- Lock files: track but do not show noisy diffs ---------------------------
+# (Not currently used, but useful if a lockfile is added later.)
+# poetry.lock -diff
+# Pipfile.lock -diff
+
+# -- GitHub Actions ----------------------------------------------------------
+*.yml text linguist-detectable=true

@@ -1,0 +1,24 @@
+# =============================================================================
+# docker-compose.yml — Discord Trello Bug Bot
+# =============================================================================
+#
+# Usage:
+#   docker compose up --build        # build & start
+#   docker compose up -d --build     # build & start detached
+#   docker compose logs -f           # follow logs
+#   docker compose down              # stop & remove containers
+#
+# Environment variables are read from .env in the project root.
+# See .env.example for the full list.
+# =============================================================================
+
+services:
+  bugbot:
+    # Build from the Dockerfile in the current directory.
+    build: .
+
+    # Inject environment variables from the local .env file.
+    env_file: .env
+
+    # Restart automatically unless explicitly stopped.
+    restart: unless-stopped

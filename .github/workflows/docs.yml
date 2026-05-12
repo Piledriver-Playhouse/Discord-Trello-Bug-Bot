@@ -1,0 +1,97 @@
+# =============================================================================
+# GitHub Actions – Build Sphinx docs and deploy to GitHub Pages
+# =============================================================================
+#
+# Triggers:
+#   - Push to the default branch (main)
+#   - Manual dispatch from the Actions tab
+#
+# This workflow:
+#   1. Checks out the repository.
+#   2. Sets up Python 3.12 and installs Sphinx + theme dependencies.
+#   3. Builds the HTML documentation from the docs/ directory.
+#   4. Uploads the built HTML as a GitHub Pages artifact.
+#   5. Deploys the artifact to the gh-pages environment.
+#
+# Prerequisites:
+#   - In the repository Settings → Pages, set **Source** to "GitHub Actions".
+# =============================================================================
+
+name: Deploy Sphinx Docs to GitHub Pages
+
+on:
+  # Run on every push to the default branch.
+  push:
+    branches: ["main"]
+
+  # Allow manual triggering from the Actions tab.
+  workflow_dispatch:
+
+# Grant GITHUB_TOKEN the permissions needed for Pages deployment.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only allow one concurrent deployment; skip in-progress runs for the
+# same ref, but do NOT cancel in-progress production deployments.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # -------------------------------------------------------------------
+  # Job 1: Build the Sphinx HTML documentation
+  # -------------------------------------------------------------------
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -- Checkout ----------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -- Python setup ------------------------------------------------------
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # -- Install dependencies ----------------------------------------------
+      - name: Install Sphinx and documentation dependencies
+        run: pip install -r docs/requirements.txt
+
+      # -- Build HTML --------------------------------------------------------
+      - name: Build Sphinx HTML documentation
+        run: sphinx-build -b html docs/ docs/_build/html -W --keep-going
+        env:
+          # Mock env vars so bot.py can be imported by autodoc without
+          # real credentials.
+          DISCORD_TOKEN: "DOCS_BUILD_PLACEHOLDER"
+          BUG_CHANNEL_ID: "000000000000000000"
+          TRELLO_API_KEY: "DOCS_BUILD_PLACEHOLDER"
+          TRELLO_TOKEN: "DOCS_BUILD_PLACEHOLDER"
+          TRELLO_LIST_ID: "DOCS_BUILD_PLACEHOLDER"
+
+      # -- Upload artifact for Pages -----------------------------------------
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html
+
+  # -------------------------------------------------------------------
+  # Job 2: Deploy the built docs to GitHub Pages
+  # -------------------------------------------------------------------
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # Deploy to the github-pages environment.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
