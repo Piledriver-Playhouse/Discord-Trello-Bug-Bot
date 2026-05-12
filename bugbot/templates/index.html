@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bug Bot Dashboard</title>
+    <title>Discord Trello Bug Bot Dashboard</title>
     <link rel="icon" type="image/png" href="/static/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
@@ -213,7 +214,7 @@
                 <img src="/static/logo.png" alt="Piledriver Playhouse Logo">
                 <h1>Bug Bot Dashboard</h1>
             </div>
-            <div class="version">System: Online ({{ version }})</div>
+            <div class="version">System: Online</div>
         </header>
 
         <div class="stats-grid">
@@ -268,7 +269,9 @@
 
         <footer>
             <a href="https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot" target="_blank">GitHub Repo</a>
-            <a href="https://piledriver-playhouse.com/" target="_blank">Company Website</a>
+            <a href="https://piledriver-playhouse.github.io/Discord-Trello-Bug-Bot/" target="_blank">Docs</a>
+            <a href="https://discord.gg/UhPSqrqqnB" target="_blank">Discord Server</a>
+            <a href="https://piledriver-playhouse.com/" target="_blank">Piledriver Playhouse</a>
             <a href="https://github.com/sponsors/bitboyb" target="_blank">Support Project</a>
         </footer>
     </div>
@@ -278,7 +281,7 @@
         const logContainer = document.getElementById('log-container');
         const eventSource = new EventSource('/api/logs');
 
-        eventSource.onmessage = function(event) {
+        eventSource.onmessage = function (event) {
             const line = document.createElement('div');
             line.className = 'log-line';
             line.textContent = event.data;
@@ -303,4 +306,5 @@
         setInterval(refreshStats, 5000);
     </script>
 </body>
+
 </html>
