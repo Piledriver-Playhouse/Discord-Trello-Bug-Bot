@@ -1,9 +1,7 @@
-# k8s/overlays/production/deployment-patch.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: arcascian-bugbot
-  namespace: arcascian-tools
+  name: bugbot
 spec:
   template:
     spec:

@@ -71,7 +71,7 @@ All manifests live in the ``k8s/`` directory.
 
 .. code-block:: bash
 
-   kubectl -n arcascian-tools create secret generic arcascian-bugbot-secrets \
+   kubectl -n bugbot create secret generic bugbot-secrets \
      --from-literal=DISCORD_TOKEN='...' \
      --from-literal=BUG_CHANNEL_ID='...' \
      --from-literal=TRELLO_API_KEY='...' \
@@ -111,7 +111,7 @@ You can use this as a template for your own environment-specific tweaks.
 .. code-block:: bash
 
    # Watch logs
-   kubectl -n arcascian-tools logs deploy/arcascian-bugbot -f
+   kubectl -n bugbot logs deploy/bugbot -f
 
    # Check pod status
-   kubectl -n arcascian-tools get pods
+   kubectl -n bugbot get pods

@@ -4,19 +4,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: arcascian-bugbot
-  namespace: arcascian-tools
+  name: bugbot
+  namespace: bugbot
   labels:
-    app: arcascian-bugbot
+    app: bugbot
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: arcascian-bugbot
+      app: bugbot
   template:
     metadata:
       labels:
-        app: arcascian-bugbot
+        app: bugbot
     spec:
       containers:
         - name: bugbot
@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - secretRef:
-                name: arcascian-bugbot-secrets
+                name: bugbot-secrets
           ports:
             - name: webhook
               containerPort: 8080

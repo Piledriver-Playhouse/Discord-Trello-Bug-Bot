@@ -174,8 +174,8 @@ The bot is designed to run seamlessly in a Kubernetes cluster (e.g., k3s) and pl
 ArgoCD and GitOps repositories should not store plain text secrets. You must create the secret manually (or via SealedSecrets) on your cluster:
 
 ```bash
-kubectl create namespace arcascian-tools
-kubectl -n arcascian-tools create secret generic arcascian-bugbot-secrets \
+kubectl create namespace bugbot
+kubectl -n bugbot create secret generic bugbot-secrets \
   --from-literal=DISCORD_TOKEN='...' \
   --from-literal=BUG_CHANNEL_ID='...' \
   --from-literal=TRELLO_API_KEY='...' \
@@ -186,7 +186,7 @@ kubectl -n arcascian-tools create secret generic arcascian-bugbot-secrets \
 ### 2. Private Image Pull Secret (Optional)
 If your GHCR package is private, create a Docker registry secret and update `deployment.yaml` with an `imagePullSecrets` configuration:
 ```bash
-kubectl -n arcascian-tools create secret docker-registry ghcr-secret \
+kubectl -n bugbot create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io \
   --docker-username=YOUR_USERNAME \
   --docker-password='...' \
@@ -239,10 +239,10 @@ If something goes wrong, it reacts with ❌ and replies with an error message.
 - Check the bot logs for the full error.
 
 ### Bot works locally but not in k3s
-- Verify the secret name matches `arcascian-bugbot-secrets`.
+- Verify the secret name matches `bugbot-secrets`.
 - Ensure all required env vars are present in the secret.
 - Confirm the image name in `deployment.yaml` matches what you pushed.
-- Check pod logs: `kubectl -n arcascian-tools logs deploy/arcascian-bugbot`
+- Check pod logs: `kubectl -n bugbot logs deploy/bugbot`
 
 ### discord.py privileged intent error
 - Go to the [Developer Portal](https://discord.com/developers/applications), select your app → **Bot**, and enable **Message Content Intent**.

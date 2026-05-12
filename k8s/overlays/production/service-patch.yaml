@@ -1,9 +1,7 @@
-# k8s/overlays/production/service-patch.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: arcascian-bugbot
-  namespace: arcascian-tools
+  name: bugbot
 spec:
   type: NodePort
   ports:

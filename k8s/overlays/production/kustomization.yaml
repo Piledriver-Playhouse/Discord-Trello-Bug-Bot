@@ -5,6 +5,12 @@ kind: Kustomization
 resources:
   - ../../base
 
+# Override the namespace for all resources in this overlay
+namespace: arcascian-tools
+
+# Prefix all resource names (e.g. bugbot -> arcascian-bugbot)
+namePrefix: arcascian-
+
 patchesStrategicMerge:
   - deployment-patch.yaml
   - service-patch.yaml

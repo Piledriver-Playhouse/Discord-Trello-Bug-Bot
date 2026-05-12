@@ -1,26 +1,19 @@
 # =============================================================================
-# k8s/service.yaml — Bug Bot Webhook Service
+# k8s/base/service.yaml — Bug Bot Webhook & Dashboard Service
 # =============================================================================
-#
-# Exposes the bot's internal webhook listener port (8080) to the cluster.
-#
-# To receive notifications from Trello, you will need to expose this
-# Service to the internet via an Ingress or a tool like Tailscale Funnel.
-# =============================================================================
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: arcascian-bugbot
-  namespace: arcascian-tools
+  name: bugbot
+  namespace: bugbot
   labels:
-    app: arcascian-bugbot
+    app: bugbot
 spec:
   type: ClusterIP
   selector:
-    app: arcascian-bugbot
+    app: bugbot
   ports:
     - name: webhook
       port: 80
-      targetPort: webhook
+      targetPort: 8080
       protocol: TCP
