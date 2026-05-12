@@ -1,0 +1,38 @@
+# =============================================================================
+# k8s/base/deployment.yaml — Generic Deployment Manifest
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arcascian-bugbot
+  namespace: arcascian-tools
+  labels:
+    app: arcascian-bugbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: arcascian-bugbot
+  template:
+    metadata:
+      labels:
+        app: arcascian-bugbot
+    spec:
+      containers:
+        - name: bugbot
+          image: ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: arcascian-bugbot-secrets
+          ports:
+            - name: webhook
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

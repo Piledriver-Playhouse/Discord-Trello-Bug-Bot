@@ -1,0 +1,23 @@
+# k8s/overlays/production/deployment-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arcascian-bugbot
+  namespace: arcascian-tools
+spec:
+  template:
+    spec:
+      # Specific to AMD64 nodes in a mixed-arch cluster (e.g. k3s on RPi + x86)
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      
+      # Required for GHCR pull access
+      imagePullSecrets:
+        - name: ghcr-secret
+      
+      # Custom DNS for Tailscale / MagicDNS compatibility issues
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 8.8.8.8
