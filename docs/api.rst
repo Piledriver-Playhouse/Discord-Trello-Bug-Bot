@@ -1,12 +1,15 @@
 API Reference
 =============
 
-Auto-generated documentation from the ``bot.py`` source module.
+The Bug Bot is structured as a modular Python package. Below is the
+technical documentation for each module.
 
-bot module
-----------
+.. toctree::
+   :maxdepth: 2
 
-.. automodule:: bot
-   :members:
-   :show-inheritance:
-   :exclude-members: bug_command, on_ready
+   bugbot.config
+   bugbot.stats
+   bugbot.trello
+   bugbot.discord_bot
+   bugbot.web
+   bugbot.main

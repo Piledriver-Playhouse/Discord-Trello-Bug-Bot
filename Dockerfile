@@ -26,10 +26,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the bot source code and templates.
-COPY bot.py .
-COPY templates/ templates/
+# Copy the bot package (includes code and templates).
+COPY bugbot/ bugbot/
 
-# Run the bot. No shell form — exec form ensures signals are forwarded
-# correctly so the container shuts down cleanly.
-CMD ["python", "bot.py"]
+# Run the bot as a module.
+CMD ["python", "-m", "bugbot.main"]

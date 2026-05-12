@@ -21,9 +21,10 @@ Users type ``!bug <report>`` in a designated Discord channel. The bot
 creates a Trello card in a configured list with the full report text,
 reporter info, and a link back to the original Discord message.
 
-* No database required
-* No web server or inbound webhooks
-* Outbound connections only (Discord gateway + Trello REST API)
+* **No database required** — stateless and lightweight.
+* **Attachments Sync** — automatically uploads screenshots to Trello.
+* **Discord Threads** — keeps conversations organized.
+* **Web Dashboard** — real-time monitoring of logs and bot health.
 
 Quick Start
 -----------
@@ -41,7 +42,7 @@ Quick Start
    # Edit .env with your real credentials
 
    # Run
-   python bot.py
+   python -m bugbot.main
 
 Indices and Tables
 ------------------

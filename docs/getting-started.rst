@@ -95,7 +95,7 @@ Local Installation
    # Fill in your real credentials
 
    # Start the bot
-   python bot.py
+   python -m bugbot.main
 
 The bot uses `python-dotenv <https://pypi.org/project/python-dotenv/>`_ to
 load ``.env`` automatically when running locally.
