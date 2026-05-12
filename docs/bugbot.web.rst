@@ -1,5 +1,5 @@
 bugbot.web module
-==================
+====================================
 
 .. automodule:: bugbot.web
    :members:

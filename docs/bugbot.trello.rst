@@ -1,5 +1,5 @@
 bugbot.trello module
-==================
+====================================
 
 .. automodule:: bugbot.trello
    :members:

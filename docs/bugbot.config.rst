@@ -1,5 +1,5 @@
 bugbot.config module
-==================
+====================================
 
 .. automodule:: bugbot.config
    :members:
