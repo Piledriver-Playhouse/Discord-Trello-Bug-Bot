@@ -3,6 +3,7 @@
 [![Documentation](https://img.shields.io/badge/docs-Sphinx-blue.svg)](https://Piledriver-Playhouse.github.io/Discord-Trello-Bug-Bot/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Docker Pulls](https://img.shields.io/badge/docker-ghcr.io-blue.svg)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
+[![Downloads](https://img.shields.io/badge/downloads-GHCR-purple)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
 
 A lightweight Discord bot that turns `!bug` messages into Trello cards — built for private game repositories by **Piledriver Playhouse** where public GitHub Issues aren't desired.
 
@@ -12,7 +13,11 @@ A lightweight Discord bot that turns `!bug` messages into Trello cards — built
 2. The bot creates a Trello card in a configured list (e.g., **Bugs**) with the full report, reporter info, and a link back to the Discord message.
 3. The bot reacts with ✅ and replies with the Trello card URL.
 
-No database, no web server, no inbound webhooks just an outbound connection to Discord and Trello.
+No database required — just an outbound connection to Discord and Trello, and a lightweight web dashboard for real-time monitoring.
+
+## Dashboard Preview
+
+![Dashboard Preview](media/dashboard_preview.png)
 
 ---
 

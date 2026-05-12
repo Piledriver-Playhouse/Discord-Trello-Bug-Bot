@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Bot Dashboard</title>
+    <link rel="icon" type="image/png" href="/static/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-background-body: #121212;
+            --color-background-secondary: #1e1e1e;
+            --color-background-container: #2c2c2c;
+            --color-border-primary: #333333;
+            --color-background-hover: #383838;
+            --color-accent-primary: #a488bf;
+            --color-accent-secondary: #a488bf;
+            --color-text-body: #f5f5f5;
+            --color-text-light: #f5f5f5;
+            --color-background-button-hover: #191919;
+            --color-background-input: #232323;
+            --color-border-input: #2a2a2a;
+            --color-text-h3: #d0d0d0;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--color-background-body);
+            color: var(--color-text-body);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--color-border-primary);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-container img {
+            height: 40px;
+            width: auto;
+        }
+
+        h1 {
+            color: var(--color-accent-primary);
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--color-background-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border-primary);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--color-text-h3);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--color-accent-primary);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background-color: var(--color-background-secondary);
+            border: 1px solid var(--color-border-primary);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background-color: var(--color-background-container);
+            padding: 10px 20px;
+            font-weight: bold;
+            border-bottom: 1px solid var(--color-border-primary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #log-container {
+            height: 400px;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #000;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #00ff00;
+        }
+
+        .log-line {
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+            border-left: 2px solid transparent;
+            padding-left: 8px;
+        }
+
+        .bug-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .bug-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--color-border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bug-item:last-child {
+            border-bottom: none;
+        }
+
+        .bug-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .bug-name {
+            font-weight: 500;
+            color: var(--color-text-light);
+        }
+
+        .bug-meta {
+            font-size: 0.8rem;
+            color: var(--color-text-h3);
+        }
+
+        .bug-link {
+            color: var(--color-accent-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .bug-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--color-border-primary);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--color-accent-primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="/static/logo.png" alt="Piledriver Playhouse Logo">
+                <h1>Bug Bot Dashboard</h1>
+            </div>
+            <div class="version">System: Online ({{ version }})</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Uptime</h3>
+                <div class="stat-value" id="stat-uptime">{{ uptime }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Bugs Reported</h3>
+                <div class="stat-value" id="stat-bugs">{{ stats.bugs_reported }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Attachments</h3>
+                <div class="stat-value" id="stat-attachments">{{ stats.attachments_synced }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Threads</h3>
+                <div class="stat-value" id="stat-threads">{{ stats.threads_created }}</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <span>Live Log Stream</span>
+                    <span style="color: #00ff00; font-size: 0.8rem;">● LIVE</span>
+                </div>
+                <div id="log-container">
+                    <!-- Logs will be streamed here -->
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span>Recent Bug Reports</span>
+                </div>
+                <ul class="bug-list">
+                    {% for bug in recent_bugs %}
+                    <li class="bug-item">
+                        <div class="bug-info">
+                            <span class="bug-name">{{ bug.name }}</span>
+                            <span class="bug-meta">ID: {{ bug.idShort }}</span>
+                        </div>
+                        <a href="{{ bug.shortUrl }}" target="_blank" class="bug-link">View in Trello &rarr;</a>
+                    </li>
+                    {% else %}
+                    <li class="bug-item">No recent bugs found in the Trello list.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <a href="https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot" target="_blank">GitHub Repo</a>
+            <a href="https://piledriver-playhouse.com/" target="_blank">Company Website</a>
+            <a href="https://github.com/sponsors/bitboyb" target="_blank">Support Project</a>
+        </footer>
+    </div>
+
+    <script>
+        // Log Streaming via SSE
+        const logContainer = document.getElementById('log-container');
+        const eventSource = new EventSource('/api/logs');
+
+        eventSource.onmessage = function(event) {
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.textContent = event.data;
+            logContainer.appendChild(line);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        };
+
+        // Auto-refresh Stats
+        async function refreshStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                document.getElementById('stat-uptime').textContent = data.uptime;
+                document.getElementById('stat-bugs').textContent = data.bugs_reported;
+                document.getElementById('stat-attachments').textContent = data.attachments_synced;
+                document.getElementById('stat-threads').textContent = data.threads_created;
+            } catch (err) {
+                console.error("Failed to refresh stats:", err);
+            }
+        }
+
+        setInterval(refreshStats, 5000);
+    </script>
+</body>
+</html>
