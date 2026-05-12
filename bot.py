@@ -69,6 +69,9 @@ class BotConfig:
     log_level: str              #: Python logging level name (e.g. ``"INFO"``).
     enable_threads: bool        #: Whether to automatically create a Discord thread for each bug.
     enable_attachments: bool    #: Whether to sync Discord attachments to the Trello card.
+    trello_done_list_id: str | None #: Optional list ID to watch for "Fixed" cards.
+    webhook_host: str           #: Interface for the webhook server to bind to.
+    webhook_port: int           #: Port for the webhook server to listen on.
 
 
 # ---------------------------------------------------------------------------
@@ -135,6 +138,9 @@ def load_config() -> BotConfig:
         log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
         enable_threads=os.getenv("ENABLE_THREADS", "true").lower() == "true",
         enable_attachments=os.getenv("ENABLE_ATTACHMENTS", "true").lower() == "true",
+        trello_done_list_id=os.getenv("TRELLO_DONE_LIST_ID"),
+        webhook_host=os.getenv("WEBHOOK_HOST", "0.0.0.0"),
+        webhook_port=int(os.getenv("WEBHOOK_PORT", "8080")),
     )
 
 
@@ -447,27 +453,144 @@ async def bug_command(
 
 
 # ---------------------------------------------------------------------------
+# Webhook Receiver (Trello -> Discord)
+# ---------------------------------------------------------------------------
+
+import re
+from aiohttp import web
+
+#: Regex to extract the message link from a Trello card description.
+MESSAGE_LINK_RE: re.Pattern[str] = re.compile(
+    r"\*\*Message:\*\* (https://discord\.com/channels/\d+/\d+/\d+)"
+)
+
+
+async def handle_trello_webhook(request: web.Request) -> web.Response:
+    """Process incoming Trello webhooks.
+
+    Trello sends a ``HEAD`` request to verify the webhook URL on
+    creation. Subsequent notifications are ``POST`` requests with a
+    JSON payload.
+
+    If a card is moved to the list matching
+    :attr:`~BotConfig.trello_done_list_id`, the bot attempts to find
+    the original Discord message and post a "Fixed" notification.
+    """
+    # Trello head request for webhook validation.
+    if request.method == "HEAD":
+        return web.Response(status=200)
+
+    try:
+        data: dict[str, Any] = await request.json()
+        action: dict[str, Any] = data.get("action", {})
+        
+        # Check if the action is moving a card to the "Done" list.
+        if (
+            action.get("type") == "updateCard" and
+            action.get("display", {}).get("translationKey") == "action_move_card_from_list_to_list" and
+            action.get("data", {}).get("listAfter", {}).get("id") == config.trello_done_list_id
+        ):
+            card_data: dict[str, Any] = action.get("data", {}).get("card", {})
+            card_id: str = card_data.get("id", "Unknown")
+            card_name: str = card_data.get("name", "Unknown Bug")
+            
+            # We need to get the full card description to find the Discord link.
+            # This requires one extra API call.
+            async with aiohttp.ClientSession() as session:
+                params: dict[str, str] = {
+                    "key": config.trello_api_key,
+                    "token": config.trello_token,
+                }
+                async with session.get(f"{TRELLO_CARDS_URL}/{card_id}", params=params) as resp:
+                    if resp.status == 200:
+                        card_detail: dict[str, Any] = await resp.json()
+                        desc: str = card_detail.get("desc", "")
+                        match: re.Match[str] | None = MESSAGE_LINK_RE.search(desc)
+                        
+                        if match:
+                            msg_url: str = match.group(1)
+                            # URL format: https://discord.com/channels/GUILD_ID/CHANNEL_ID/MESSAGE_ID
+                            parts: list[str] = msg_url.split("/")
+                            channel_id: int = int(parts[-2])
+                            message_id: int = int(parts[-1])
+                            
+                            channel: Any = bot.get_channel(channel_id)
+                            if channel:
+                                # If it was a thread, we can post there.
+                                # If not, we reply to the original message.
+                                try:
+                                    message: discord.Message = await channel.fetch_message(message_id)
+                                    # Post "Fixed" notification.
+                                    fixed_msg: str = (
+                                        f"🎉 **Bug Fixed!**\n"
+                                        f"Trello card **\"{card_name}\"** has been moved to Fixed."
+                                    )
+                                    if message.thread:
+                                        await message.thread.send(fixed_msg)
+                                    else:
+                                        await message.reply(fixed_msg)
+                                    log.info("Posted fix notification for card %s", card_id)
+                                except Exception as disc_exc:
+                                    log.warning("Could not post to Discord: %s", disc_exc)
+
+        return web.Response(status=200)
+    except Exception as err:
+        log.error("Error processing Trello webhook: %s", err)
+        return web.Response(status=500)
+
+
+async def run_webhook_server() -> None:
+    """Run the aiohttp web server for incoming webhooks."""
+    app: web.Application = web.Application()
+    app.router.add_route("*", "/trello-webhook", handle_trello_webhook)
+    runner: web.AppRunner = web.AppRunner(app)
+    await runner.setup()
+    site: web.TCPSite = web.TCPSite(
+        runner, config.webhook_host, config.webhook_port
+    )
+    await site.start()
+    log.info(
+        "Webhook server listening on %s:%s",
+        config.webhook_host,
+        config.webhook_port
+    )
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
 
 def main() -> None:
-    """Start the Discord bot.
+    """Start the Discord bot and the webhook server.
 
-    Prints a minimal startup banner to stdout and then hands control
-    to :meth:`discord.ext.commands.Bot.run`, which blocks until the
-    bot disconnects.
-
-    ``log_handler=None`` is passed so that :func:`logging.basicConfig`
-    (configured above) takes precedence over discord.py's default
-    handler.
+    Prints a minimal startup banner to stdout and then starts the
+    asyncio event loop to run both the Discord bot and the aiohttp
+    web server concurrently.
     """
     print(
         f"Starting bug bot "
         f"(prefix={config.command_prefix!r}, "
         f"channel={config.bug_channel_id})"
     )
-    bot.run(config.discord_token, log_handler=None)
+
+    import asyncio
+
+    async def start_everything() -> None:
+        # Start the webhook server.
+        await run_webhook_server()
+        # Start the Discord bot.
+        # We use start() instead of run() to avoid blocking the loop.
+        try:
+            await bot.start(config.discord_token)
+        finally:
+            if not bot.is_closed():
+                await bot.close()
+
+    try:
+        asyncio.run(start_everything())
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

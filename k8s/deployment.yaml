@@ -13,8 +13,9 @@
 # Apply with:
 #   kubectl apply -f k8s/deployment.yaml
 #
-# The bot only makes outbound connections to Discord and Trello, so no
-# Service or Ingress resource is required.
+# The bot makes outbound connections to Discord and Trello, and
+# listens for inbound webhooks on port 8080. A Service is required
+# to expose the webhook listener.
 # =============================================================================
 
 apiVersion: apps/v1
@@ -62,6 +63,12 @@ spec:
           envFrom:
             - secretRef:
                 name: arcascian-bugbot-secrets
+
+          # ── Ports ─────────────────────────────────────────────────────
+          ports:
+            - name: webhook
+              containerPort: 8080
+              protocol: TCP
 
           # ── Resource limits ───────────────────────────────────────────
           # The bot is lightweight (Python + WebSocket + occasional HTTP
