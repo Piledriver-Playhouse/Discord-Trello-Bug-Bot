@@ -67,6 +67,8 @@ class BotConfig:
     command_prefix: str         #: Prefix character(s) for Discord commands.
     card_title_prefix: str      #: String prepended to every Trello card title.
     log_level: str              #: Python logging level name (e.g. ``"INFO"``).
+    enable_threads: bool        #: Whether to automatically create a Discord thread for each bug.
+    enable_attachments: bool    #: Whether to sync Discord attachments to the Trello card.
 
 
 # ---------------------------------------------------------------------------
@@ -131,6 +133,8 @@ def load_config() -> BotConfig:
         command_prefix=os.getenv("COMMAND_PREFIX", "!"),
         card_title_prefix=os.getenv("CARD_TITLE_PREFIX", "Bug:"),
         log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
+        enable_threads=os.getenv("ENABLE_THREADS", "true").lower() == "true",
+        enable_attachments=os.getenv("ENABLE_ATTACHMENTS", "true").lower() == "true",
     )
 
 
@@ -189,6 +193,32 @@ async def create_trello_card(
         resp.raise_for_status()
         data: dict[str, Any] = await resp.json()
         return data
+
+
+async def add_attachment_to_trello_card(
+    session: aiohttp.ClientSession,
+    card_id: str,
+    url: str,
+) -> None:
+    """Upload an external file (via URL) as an attachment to a Trello card.
+
+    Args:
+        session: An active :class:`aiohttp.ClientSession`.
+        card_id: The ID of the Trello card to attach the file to.
+        url: The public URL of the file to attach.
+
+    Raises:
+        aiohttp.ClientResponseError: If the Trello API returns a
+            non-2xx status code.
+    """
+    api_url: str = f"{TRELLO_CARDS_URL}/{card_id}/attachments"
+    params: dict[str, str] = {
+        "key": config.trello_api_key,
+        "token": config.trello_token,
+        "url": url,
+    }
+    async with session.post(api_url, params=params) as resp:
+        resp.raise_for_status()
 
 
 # ---------------------------------------------------------------------------
@@ -362,6 +392,8 @@ async def bug_command(
 
         # Prefer the short URL; fall back to the full URL.
         card_url: str | None = card.get("shortUrl") or card.get("url")
+        card_id: str | None = card.get("id")
+
         log.info(
             "Card created for %s (%s): %s",
             ctx.author,
@@ -369,9 +401,38 @@ async def bug_command(
             card_url,
         )
 
+        # ── Handle Attachments ─────────────────────────────────────────
+        if config.enable_attachments and ctx.message.attachments and card_id:
+            for attachment in ctx.message.attachments:
+                try:
+                    await add_attachment_to_trello_card(
+                        session, card_id, attachment.url
+                    )
+                    log.info("Attached file to Trello: %s", attachment.filename)
+                except Exception as att_exc:
+                    log.warning(
+                        "Failed to upload attachment %s: %s",
+                        attachment.filename,
+                        att_exc,
+                    )
+
         # Success feedback in Discord.
         await ctx.message.add_reaction("✅")
         await ctx.reply(f"Bug report submitted! Trello card: {card_url}")
+
+        # ── Handle Thread Creation ─────────────────────────────────────
+        if config.enable_threads:
+            try:
+                # Thread name should be somewhat descriptive.
+                thread_name: str = (
+                    f"Bug: {report[:50]}..." if len(report) > 50 else f"Bug: {report}"
+                )
+                await ctx.message.create_thread(
+                    name=thread_name, auto_archive_duration=1440
+                )
+                log.info("Created Discord thread for bug report.")
+            except Exception as thread_exc:
+                log.warning("Failed to create Discord thread: %s", thread_exc)
 
     except Exception as exc:
         # Log the full traceback for debugging.
