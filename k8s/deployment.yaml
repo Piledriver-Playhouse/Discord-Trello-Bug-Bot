@@ -39,6 +39,15 @@ spec:
       labels:
         app: arcascian-bugbot
     spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      imagePullSecrets:
+        - name: ghcr-secret
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+          - 8.8.8.8
       containers:
         - name: bugbot
 
