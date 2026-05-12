@@ -1,0 +1,13 @@
+# k8s/overlays/production/service-patch.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: arcascian-bugbot
+  namespace: arcascian-tools
+spec:
+  type: NodePort
+  ports:
+    - name: webhook
+      port: 80
+      targetPort: 8080
+      nodePort: 30080
