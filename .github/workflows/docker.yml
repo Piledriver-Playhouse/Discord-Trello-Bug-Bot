@@ -9,6 +9,9 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: piledriver-playhouse/discord-trello-bug-bot
+  K3S_REPO: bitboyb/k3s
+  K3S_BRANCH: main
+  K3S_MANIFEST: apps/discord-trello-bug-bot/deployment.yaml
 
 jobs:
   build-and-push-image:
@@ -44,3 +47,41 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  update-k3s-manifest:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout k3s repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.K3S_REPO }}
+          ref: ${{ env.K3S_BRANCH }}
+          token: ${{ secrets.K3S_REPO_PAT }}
+          path: k3s
+
+      - name: Update bug bot image tag
+        working-directory: k3s
+        env:
+          SHORT_SHA: ${{ github.sha }}
+        run: |
+          SHORT_SHA="${SHORT_SHA::7}"
+          IMAGE="ghcr.io/piledriver-playhouse/discord-trello-bug-bot:sha-${SHORT_SHA}"
+          sed -i -E "s|image: ghcr.io/piledriver-playhouse/discord-trello-bug-bot:.*|image: ${IMAGE}|" "${K3S_MANIFEST}"
+          grep -n "image:" "${K3S_MANIFEST}"
+
+      - name: Commit and push manifest update
+        working-directory: k3s
+        run: |
+          if git diff --quiet -- "${K3S_MANIFEST}"; then
+            echo "No manifest change detected."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${K3S_MANIFEST}"
+          git commit -m "chore: deploy bug bot sha-${GITHUB_SHA::7}"
+          git push origin "${K3S_BRANCH}"
