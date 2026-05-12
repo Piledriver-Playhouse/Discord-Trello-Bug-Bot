@@ -12,7 +12,7 @@ A lightweight Discord bot that turns `!bug` messages into Trello cards — built
 2. The bot creates a Trello card in a configured list (e.g., **Bugs**) with the full report, reporter info, and a link back to the Discord message.
 3. The bot reacts with ✅ and replies with the Trello card URL.
 
-No database, no web server, no inbound webhooks — just an outbound connection to Discord and Trello.
+No database, no web server, no inbound webhooks just an outbound connection to Discord and Trello.
 
 ---
 
