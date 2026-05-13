@@ -2,8 +2,8 @@
 
 [![Documentation](https://img.shields.io/badge/docs-Sphinx-blue.svg)](https://Piledriver-Playhouse.github.io/Discord-Trello-Bug-Bot/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![GHCR Pulls](https://ghcr-badge.elias.eu.org/shield/Piledriver-Playhouse/Discord-Trello-Bug-Bot/discord-trello-bug-bot)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
-![Container](https://img.shields.io/badge/container-ghcr.io%2FPiledriver--Playhouse%2Fdiscord--trello--bug--bot-blue?logo=github)
+[![Docker Pulls](https://img.shields.io/badge/docker-ghcr.io-blue.svg)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
+[![Downloads](https://img.shields.io/badge/downloads-GHCR-purple)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
 
 A lightweight Discord bot that turns `!bug` messages into Trello cards — built for private game repositories by **Piledriver Playhouse** where public GitHub Issues aren't desired.
 
@@ -18,15 +18,6 @@ No database required — just an outbound connection to Discord and Trello, and 
 ## Dashboard Preview
 
 ![Dashboard Preview](media/dashboard_preview.png)
-
-## Container Image
-
-[![GHCR Pulls](https://ghcr-badge.elias.eu.org/shield/Piledriver-Playhouse/Discord-Trello-Bug-Bot/discord-trello-bug-bot)](https://github.com/Piledriver-Playhouse/Discord-Trello-Bug-Bot/pkgs/container/discord-trello-bug-bot)
-![Container](https://img.shields.io/badge/container-ghcr.io%2FPiledriver--Playhouse%2Fdiscord--trello--bug--bot-blue?logo=github)
-
-```bash
-docker pull ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest
-```
 
 ---
 
@@ -142,7 +133,7 @@ The bot uses [python-dotenv](https://pypi.org/project/python-dotenv/) to load `.
 ## Run Locally
 
 ```bash
-python -m bugbot.main
+python bot.py
 ```
 
 ---
