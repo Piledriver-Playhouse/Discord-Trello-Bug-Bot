@@ -14,10 +14,10 @@ Build and Run
 .. code-block:: bash
 
    # Build the image
-   docker build -t arcascian-bugbot:latest .
+   docker build -t discord-trello-bug-bot:latest .
 
    # Run with your .env file
-   docker run --env-file .env arcascian-bugbot:latest
+   docker run --env-file .env discord-trello-bug-bot:latest
 
 Docker Compose
 ^^^^^^^^^^^^^^

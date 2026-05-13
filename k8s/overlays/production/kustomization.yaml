@@ -6,10 +6,10 @@ resources:
   - ../../base
 
 # Override the namespace for all resources in this overlay
-namespace: arcascian-tools
+namespace: bugbot
 
-# Prefix all resource names (e.g. bugbot -> arcascian-bugbot)
-namePrefix: arcascian-
+# Prefix all resource names (e.g. bugbot -> discord-trello-bugbot)
+namePrefix: discord-trello-
 
 patchesStrategicMerge:
   - deployment-patch.yaml

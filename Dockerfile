@@ -5,10 +5,10 @@
 # Builds a minimal container image based on python:3.12-slim.
 #
 # Build:
-#   docker build -t arcascian-bugbot:latest .
+#   docker build -t discord-trello-bug-bot:latest .
 #
 # Run:
-#   docker run --env-file .env arcascian-bugbot:latest
+#   docker run --env-file .env discord-trello-bug-bot:latest
 #
 # The image does NOT include .env or any secrets. Environment variables
 # must be injected at runtime via --env-file, -e flags, or orchestrator

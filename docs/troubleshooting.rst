@@ -22,7 +22,7 @@ Trello Card Not Created
 Bot Works Locally but Not in k3s
 ---------------------------------
 
-* Verify the Kubernetes Secret name matches ``arcascian-bugbot-secrets``.
+* Verify the Kubernetes Secret name matches ``bugbot-secrets``.
 * Ensure **all five required** environment variables are present in the
   Secret.
 * Confirm the container image in ``deployment.yaml`` matches the image you
@@ -31,7 +31,7 @@ Bot Works Locally but Not in k3s
 
   .. code-block:: bash
 
-     kubectl -n arcascian-tools logs deploy/arcascian-bugbot
+     kubectl -n bugbot logs deploy/bugbot
 
 ``discord.py`` Privileged Intent Error
 --------------------------------------

@@ -36,8 +36,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "Discord Trello Bug Bot"
-copyright = "2026, Arcascian"
-author = "Arcascian"
+copyright = "2026, Piledriver Playhouse"
+author = "Piledriver Playhouse"
 release = "1.1.1"
 
 # -- General configuration ---------------------------------------------------

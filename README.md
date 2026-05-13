@@ -142,10 +142,10 @@ python bot.py
 
 ```bash
 # Build
-docker build -t arcascian-bugbot:latest .
+docker build -t discord-trello-bug-bot:latest .
 
 # Run
-docker run --env-file .env arcascian-bugbot:latest
+docker run --env-file .env discord-trello-bug-bot:latest
 ```
 
 ## Run with Docker Compose
