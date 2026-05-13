@@ -172,7 +172,8 @@ docker push ghcr.io/piledriver-playhouse/discord-trello-bug-bot:latest
 If you use the bundled GitHub Actions workflow, it can also update your GitOps repo automatically after a successful image push. For this repo's workflow, add these repository secrets:
 
 - `GHCR_PAT`: token with permission to push the GHCR package
-- `K3S_REPO_PAT`: token with permission to push to your `k3s` GitOps repo
+
+The workflow publishes both `latest` and immutable `sha-<commit>` image tags. For production or GitOps deployments, prefer the immutable `sha-*` tags and update your deployment manifests explicitly when you want to release a new version.
 
 ---
 
